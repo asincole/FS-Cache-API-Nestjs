@@ -1,9 +1,20 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ConfigModule, ConfigService } from 'nestjs-config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { RecordsCacheModule } from './records-cache/records-cache.module';
+import * as path from 'path';
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.load(path.resolve(__dirname, 'config', '**', '!(*.d).{ts,js}')),
+    TypeOrmModule.forRootAsync({
+      useFactory: (config: ConfigService) => config.get('database'),
+      inject: [ConfigService],
+    }),
+    RecordsCacheModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
